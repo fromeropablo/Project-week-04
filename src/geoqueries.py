@@ -64,6 +64,24 @@ def Geoquery(coord, topic, tok1, tok2):
 
 
 
+def creatingPlaces(coordinates, distance, collection, city):
+    coord_point = {"type":"Point", "coordinates": coordinates}
+    query = {"location": {"$near": {"$geometry": coord_point,"$minDistance": 0  , "$maxDistance": distance}}}
+    query_final = list(collection.find(query))
+    city = pd.DataFrame(query_final)
+    latitude = [lat["location"]["coordinates"][1] for lat in query_final]
+    longitude = [long["location"]["coordinates"][0] for long in query_final]
+
+    #De aquí añadimos las listas que nos interesen al DataFrame de la ciudad de San Francisco.
+    city["latitude"] = latitude
+    city["longitude"] = longitude
+
+
+    city = city[city["latitude"].notna()]
+    city = city[city["longitude"].notna()]
+    
+    return city
+
 def creatingMap(coordinates, distance, collection, city, coord):
     coord_point = {"type":"Point", "coordinates": coordinates}
     query = {"location": {"$near": {"$geometry": coord_point,"$minDistance": 0  , "$maxDistance": distance}}}
