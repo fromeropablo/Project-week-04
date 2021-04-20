@@ -112,6 +112,5 @@ def creatingMap(coordinates, distance, collection, city, coord):
                     icon_color = "black")
         
         Marker(**distrito,icon = icon ).add_to(map_1)
-        
-    return map_1, 
+    return map_1 
    
