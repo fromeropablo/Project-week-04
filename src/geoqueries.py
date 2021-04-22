@@ -13,6 +13,20 @@ tok2 = os.getenv("tok2")
 
 def Geoquery(coord, topic, tok1, tok2):
 
+    """
+    With this function we will be able to make calls to Foursquare's API to get the location from the places we want. For this purpose
+    we have four parameters in which we indicate the coordinates where we want to find near places.
+    
+    We also specify the topic (for example, vegan for vegan places) and two needed tokens to make the calls.
+
+    Inside this function we have another function called "getFromDict", which we will explain later. 
+    After the request, we get a list of dictionaries and after some cleaning we will create a DataFrame with two columns:
+    name of the place and its location as type Point with its coordinates. 
+
+    This DataFrame will be export as a .json file to add it to our collection in MongoDB.
+
+    """
+
     city = {'type': 'Point', 'coordinates': coord}
     url_query = 'https://api.foursquare.com/v2/venues/explore'
     parametros = {
@@ -65,6 +79,15 @@ def Geoquery(coord, topic, tok1, tok2):
 
 
 def creatingPlaces(coordinates, distance, collection, city):
+
+    """
+    With this function, we are gonna do the geoquery with given coordinates, a maximum distance,
+    a collection from MongoDB and the name of the city studied. We apply a $near query and keep the data
+    in a DataFrame. Afterwards, we will add the columns latitude and longitude to have more clear information
+    about the coordinates of each place. 
+
+    """
+
     coord_point = {"type":"Point", "coordinates": coordinates}
     query = {"location": {"$near": {"$geometry": coord_point,"$minDistance": 0  , "$maxDistance": distance}}}
     query_final = list(collection.find(query))
@@ -83,6 +106,15 @@ def creatingPlaces(coordinates, distance, collection, city):
     return city
 
 def creatingMap(coordinates, distance, collection, city, coord):
+
+    """
+
+    This function is similar to the one above but now, we want to plot a map
+    with those places we are interested in. For folium we need to invert the coordinates 
+    given in the geoquery so we add a parameter called "coord". As a mid-step, we have
+    created a column called "place" which is equal in every value to "company".
+
+    """
     coord_point = {"type":"Point", "coordinates": coordinates}
     query = {"location": {"$near": {"$geometry": coord_point,"$minDistance": 0  , "$maxDistance": distance}}}
     query_final = list(collection.find(query))
